@@ -1,22 +1,24 @@
 language: python
 
-python:
-  - "2.7"
-  - "3.5"
-  - "3.6"
-  - "3.7"
-  - "3.8"
-
 install:
-  - pip install tox-travis codecov
+ - pip install sphinx sphinx-rtd-theme
 
 script:
-  - tox -vv
+  # travis will start in the root of your repository so we need to
+  # change into the docs directory
+  - cd docs
+  # Use Sphinx to make the html docs
+  - make html
+  # Tell GitHub not to use jekyll to compile the docs
+  - touch build/html/.nojekyll
 
-matrix:
-  include:
-    - python: 3.7
-      env: TOXENV=docs
-
-after_success:
-  - codecov
+# Tell Travis CI to copy the documentation to the gh-pages branch of
+# your GitHub repository.
+deploy:
+  provider: pages
+  skip_cleanup: true
+  github_token: $GITHUB_TOKEN  # Set in travis-ci.org dashboard, marked secure
+  keep-history: true
+  on:
+    branch: master
+  local_dir: docs/build/html/
